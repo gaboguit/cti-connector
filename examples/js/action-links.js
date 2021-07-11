@@ -1,22 +1,11 @@
 
 var connector;
 
-var onLabelSet = function(callId) {
-    var inputs =$('#call-' + callId + ' :input'),
-        actionUrl = $(inputs[0]).val(),
-        actionText = $(inputs[1]).val();
+var onLabelSet = function onLabelSet(id) {
+    var me = this;
+    var client = me.calls[id].id;
+    alert(client);
 
-    if (!actionUrl || !actionText) {
-        alert("Error: both Action URL and Action Text is required.");
-        return;
-    }
-
-    var data = {
-        action_url: actionUrl,
-        action_text: actionText
-    };
-
-    connector.apiRequest('PATCH', '/calls/' + callId, data);
 };
 
 Cti.Platform = function () {
@@ -31,6 +20,7 @@ Cti.Platform = function () {
 
     connector = new Cti.Connector({
         // callback
+        
         onMessage: function(message) {
             me.onMessage(message);
         }
@@ -73,38 +63,61 @@ Cti.Platform.prototype = {
     },
     onCallEvent: function(call) {
         var me = this;
-
-        if (call.status == "HANGUP") {
-            if (me.calls[call.id]) {
-                delete(me.calls[call.id]);
-                $('#call-' + call.id).remove();
+        
+        if (call.status == "HANGUP" ) {
+            if (me.calls[call.id]) {    
+                setTimeout(function(){
+                    delete(me.calls[call.id]);
+                    $('#call-' + call.id).remove();
+                },15000); 
+                clearInterval(refreshTimer);          
             }
         } else {
             if (!me.calls[call.id]) {
                 me.calls[call.id] = call;
+                var refreshTimer = setInterval(function(){ 
+                    refreshDisplay();   
+                }, 3000);
             }
         }
-
-        var callId;
-        for (callId in me.calls) {
-
-            if ($('#call-' + callId).length) {
-                continue;
-            }
-
-            call = me.calls[callId];
-
-            var row = '<tr id="call-'+callId+'">';
-            row+= '<td>'+call.source+'</td>';
-            row+= '<td>'+call.destination+'</td>';
-            row+= '<td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>';
-            row+= '<td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>';
-            row+= '<td><a href="#" onclick="onLabelSet('+callId+')" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
-            row+= '</tr>';
-
-            $('#calls-table tr:last').after(row);
-
+        if (call.status == "ON_HOLD" ) {
+            me.calls[call.id].status = call.status;
+            callStatus = call.status;
+            
         }
+        if (call.status == "CONNECTED" ) {
+            me.calls[call.id].status = call.status;
+            callStatus = call.status;
+        }
+        
+        
+        function refreshDisplay (){
+            for (callId in me.calls) {
+                thisCall = me.calls[callId];
+                var row = '<tr id="call-'+callId+'">';
+                row+= '<td>'+thisCall.status+'</td>';
+                row+= '<td>'+thisCall.source+'</td>';
+                row+= '<td>'+thisCall.destination+'</td>';
+                row+= '<td>'+thisCall.destinationName+'</td>';
+                row+= '<td><input type="text" name="prenom" class="form-control" placeholder="prenom" /></td>';
+                row+= '<td><input type="text" name="nom" class="form-control" placeholder="nom" /></td>';
+                row+= '<td><input type="text" name="email" class="form-control" placeholder="email" /></td>';
+                row+= '<td><input type="text" name="note" class="form-control" placeholder="note" /></td>';
+                row+= '<td><a href="#" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
+                row+= '</tr>';
+                if ($('#call-' + callId).length) {
+                    $('#call-' + call.id).replaceWith(row);
+                    console.log(thisCall);
+                    console.log('replaced');
+                } else{
+                    $('#calls-table tr:last').after(row);
+                }
+                
+    
+            }
+        }
+        
+        
     },
     onMessage: function (event) {
 
