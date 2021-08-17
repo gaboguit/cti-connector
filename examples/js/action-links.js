@@ -63,31 +63,37 @@ Cti.Platform.prototype = {
     },
     onCallEvent: function(call) {
         var me = this;
-        
-        if (call.status == "HANGUP" ) {
-            if (me.calls[call.id]) {    
+        if (call.status == "HANGUP" ) {     
+            if (me.calls[call.id]) { 
+                me.calls[call.id].status = call.status;
+                callStatus = call.status;
+                console.log(me.calls);
+                refreshDisplay(); 
+                clearInterval(refreshTimer);   
                 setTimeout(function(){
                     delete(me.calls[call.id]);
                     $('#call-' + call.id).remove();
-                },15000); 
-                clearInterval(refreshTimer);          
+                },2000);         
             }
         } else {
             if (!me.calls[call.id]) {
                 me.calls[call.id] = call;
-                var refreshTimer = setInterval(function(){ 
-                    refreshDisplay();   
-                }, 3000);
+                
             }
         }
         if (call.status == "ON_HOLD" ) {
             me.calls[call.id].status = call.status;
             callStatus = call.status;
+            console.log(me.calls);
             
         }
         if (call.status == "CONNECTED" ) {
             me.calls[call.id].status = call.status;
             callStatus = call.status;
+            console.log(me.calls);
+            var refreshTimer = setInterval(function(){ 
+                refreshDisplay();   
+            }, 3000);
         }
         
         
@@ -107,7 +113,6 @@ Cti.Platform.prototype = {
                 row+= '</tr>';
                 if ($('#call-' + callId).length) {
                     $('#call-' + call.id).replaceWith(row);
-                    console.log(thisCall);
                     console.log('replaced');
                 } else{
                     $('#calls-table tr:last').after(row);
