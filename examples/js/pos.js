@@ -8,7 +8,7 @@ Pos.Service.prototype = {
     _request: function(config) {
         var me = this;
         var xhr = me._newXHR();
-        var endpoint = "https://md.phppointofsale.com/index.php/api/v1/";
+        var endpoint = Config.Pos.url;
         xhr.open(config.method, endpoint + config.url, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         if (config.key) {
@@ -91,7 +91,7 @@ Pos.Service.prototype = {
         var data = {
             method: 'GET',
             url: '/customers?limit=1&search_field=phone_number&search=' + phone,
-            key: "8g0c8cooc0804occgscg484g00oks8048k0ok08w",
+            key: Config.Pos.api_key,
             success: function(response) {
                 var customer = new Pos.Customer(response[0]);
                 console.log(customer);

@@ -1,0 +1,6 @@
+Config = {};
+
+Config.Pos = {
+    url: "https://md.phppointofsale.com/index.php/api/v1/",
+    api_key: ""
+};

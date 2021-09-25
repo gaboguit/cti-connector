@@ -64,13 +64,18 @@ Cti.Platform.prototype = {
         me.calls[call.id].loadingCustomer = false;
         me.refreshDisplay(call);
     },
+    parsePhone: function(phone) {
+        var num = phone.match(/\d/g);
+        num = num.join("");
+        num = num.slice(0,3) + '-' + num.slice(3);
+        return num.slice(0,7) + '-' + num.slice(7);
+    },
     onCallEvent: function(call) {
         var me = this;
         if (call.status == "RINGING") {
             if (me.calls[call.id]) {
                 me.calls[call.id].loadingCustomer = true;
-                var parsedPhone = call.source.slice(0,3) + '-' + call.source.slice(3);
-                var parsedPhone = parsedPhone.slice(0,7) + '-' + parsedPhone.slice(7);
+                var parsedPhone = me.parsePhone(call.source);
                 var bindedCallback = me.assignCustomer.bind(me);
                 pos.getCustomer(parsedPhone, call, bindedCallback);
                 me.refreshDisplay(call);
@@ -87,7 +92,7 @@ Cti.Platform.prototype = {
                 setTimeout(function() {
                     delete(me.calls[call.id]);
                     $('#call-' + call.id).remove();
-                }, 2000);
+                }, 30000);
             }
         } else {
             if (!me.calls[call.id]) {
@@ -98,13 +103,11 @@ Cti.Platform.prototype = {
             me.calls[call.id].status = call.status;
             // Q: What is the purpose of this variable?
             callStatus = call.status;
-            console.log(me.calls);
         }
         if (call.status == "CONNECTED" ) {
             me.calls[call.id].status = call.status;
             // Q: What is the purpose of this variable?
             callStatus = call.status;
-            console.log(me.calls);
             // Q: So there is a timer refreshing the display for each call event?
             var refreshTimer = setInterval(function() {
                 me.refreshDisplay(call);
@@ -120,7 +123,6 @@ Cti.Platform.prototype = {
             row += '<td>' + thisCall.source + '</td>';
             row += '<td>' + thisCall.destination + '</td>';
             row += '<td>' + thisCall.destinationName + '</td>';
-            console.log(thisCall.loadingCustomer);
             if (thisCall.loadingCustomer) {
                 row += '<td><div class="boxLoading"></div></td>';
                 row += '<td><div class="boxLoading"></div></td>';
@@ -137,7 +139,6 @@ Cti.Platform.prototype = {
             // Q: So all existing calls are replaced with the current call?
             if ($('#call-' + callId).length) {
                 $('#call-' + call.id).replaceWith(row);
-                console.log('replaced');
             } else {
                 $('#calls-table tr:last').after(row);
             }
