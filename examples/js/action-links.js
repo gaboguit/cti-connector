@@ -67,15 +67,26 @@ Cti.Platform.prototype = {
     parsePhone: function(phone) {
         var num = phone.match(/\d/g);
         num = num.join("");
+        if (num.charAt(0) == 1) {
+            num = num.substring(1);
+            console.log(num);
+        }
         num = num.slice(0,3) + '-' + num.slice(3);
-        return num.slice(0,7) + '-' + num.slice(7);
+        num = num.slice(0,7) + '-' + num.slice(7);
+        return num;
     },
     onCallEvent: function(call) {
         var me = this;
         if (call.status == "RINGING") {
             if (me.calls[call.id]) {
                 me.calls[call.id].loadingCustomer = true;
-                var parsedPhone = me.parsePhone(call.source);
+                if (me.calls[call.id].direction == "INBOUND") {
+                    var parsedPhone = me.parsePhone(call.source);
+                } else {
+                    var parsedPhone = me.parsePhone(call.destination);
+                    console.log("OUTBOUND");
+                    console.log(parsedPhone);
+                }
                 var bindedCallback = me.assignCustomer.bind(me);
                 pos.getCustomer(parsedPhone, call, bindedCallback);
                 me.refreshDisplay(call);
