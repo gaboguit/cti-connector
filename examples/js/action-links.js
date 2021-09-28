@@ -12,8 +12,8 @@ Cti.Platform = function () {
     // some initialization
     Cti.log("Loading connector");
     var me = this;
-    $('#status').html("Loading connector...");
-    $('#status')
+    $('#cti-status').html("Loading connector...");
+    $('#cti-status')
             .removeClass()
             .addClass('label label-warning');
     connector = new Cti.Connector({
@@ -22,6 +22,10 @@ Cti.Platform = function () {
             me.onMessage(message);
         }
     });
+    $('#pos-status').html("Loading service...");
+    $('#pos-status')
+            .removeClass()
+            .addClass('label label-warning');
     pos = new Pos.Service();
 };
 
@@ -32,17 +36,38 @@ Cti.Platform.prototype = {
         Cti.EVENT.INITIAL, Cti.EVENT.ACCEPTED, Cti.EVENT.RINGING, Cti.EVENT.CONNECTED, Cti.EVENT.ON_HOLD, Cti.EVENT.HANGUP, Cti.EVENT.CANCEL
     ],
     run: function () {
+        var me = this;
         if (!connector.isConnected()) {
             document.title = "Ready";
-            $('#status')
+            $('#cti-status')
                     .html("Platform ready: Not connected.")
                     .removeClass()
                     .addClass('label label-info');
         }
+        var bindedCallback = me.connectPos.bind(me);
+        if (!pos.isConnected(bindedCallback)) {
+            $('#pos-status')
+                .html("Authentication...")
+                .removeClass()
+                .addClass('label label-warning');
+        }
+    },
+    connectPos: function(connected) {
+        if (connected) {
+            $('#pos-status')
+                    .html("Connected")
+                    .removeClass()
+                    .addClass('label label-success');
+            } else {
+                $('#pos-status')
+                    .html("Error")
+                    .removeClass()
+                    .addClass('label label-danger');
+        }
     },
     login: function () {
         var username = arguments[0];
-        $('#status')
+        $('#cti-status')
             .html("Authentication " + username + "...")
             .removeClass()
             .addClass('label label-warning');
@@ -69,7 +94,6 @@ Cti.Platform.prototype = {
         num = num.join("");
         if (num.charAt(0) == 1) {
             num = num.substring(1);
-            console.log(num);
         }
         num = num.slice(0,3) + '-' + num.slice(3);
         num = num.slice(0,7) + '-' + num.slice(7);
@@ -84,8 +108,6 @@ Cti.Platform.prototype = {
                     var parsedPhone = me.parsePhone(call.source);
                 } else {
                     var parsedPhone = me.parsePhone(call.destination);
-                    console.log("OUTBOUND");
-                    console.log(parsedPhone);
                 }
                 var bindedCallback = me.assignCustomer.bind(me);
                 pos.getCustomer(parsedPhone, call, bindedCallback);
@@ -95,9 +117,6 @@ Cti.Platform.prototype = {
         if (call.status == "HANGUP" ) {
             if (me.calls[call.id]) {
                 me.calls[call.id].status = call.status;
-                // Q: What is the purpose of this variable?
-                callStatus = call.status;
-                console.log(me.calls);
                 me.refreshDisplay(call);
                 clearInterval(refreshTimer);
                 setTimeout(function() {
@@ -112,14 +131,9 @@ Cti.Platform.prototype = {
         }
         if (call.status == "ON_HOLD" ) {
             me.calls[call.id].status = call.status;
-            // Q: What is the purpose of this variable?
-            callStatus = call.status;
         }
         if (call.status == "CONNECTED" ) {
             me.calls[call.id].status = call.status;
-            // Q: What is the purpose of this variable?
-            callStatus = call.status;
-            // Q: So there is a timer refreshing the display for each call event?
             var refreshTimer = setInterval(function() {
                 me.refreshDisplay(call);
             }, 3000);
@@ -147,11 +161,12 @@ Cti.Platform.prototype = {
             }
             row += '<td><a href="#" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
             row += '</tr>';
-            // Q: So all existing calls are replaced with the current call?
             if ($('#call-' + callId).length) {
                 $('#call-' + call.id).replaceWith(row);
+                console.log("REPLACE");
             } else {
                 $('#calls-table tr:last').after(row);
+                console.log("ADD");
             }
         }
     },
@@ -160,7 +175,7 @@ Cti.Platform.prototype = {
         Cti.log(event);
         if (event.name === Cti.EVENT.READY) {
             document.title = "Connected";
-            $('#status')
+            $('#cti-status')
                     .html("Connected")
                     .removeClass()
                     .addClass('label label-success');
@@ -175,18 +190,16 @@ Cti.Platform.prototype = {
         }
         if ($.inArray(event.name, [Cti.EVENT.ERROR, Cti.EVENT.INFO]) !== -1) {
             document.title = "Error";
-            $('#status')
+            $('#cti-status')
                     .html("Error")
                     .removeClass()
                     .addClass('label label-danger');
             alert(event.message);
         }
-        if (event.name === Cti.EVENT.LOGGED_IN) {
-            // add code if needed
-        }
+        if (event.name === Cti.EVENT.LOGGED_IN) {}
         if (event.name === Cti.EVENT.LOGGED_OUT) {
             document.title = "Ready";
-            $('#status')
+            $('#cti-status')
                     .html("Platform ready: Not connected.")
                     .removeClass()
                     .addClass('label label-info');

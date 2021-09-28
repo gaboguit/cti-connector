@@ -2,9 +2,30 @@ Pos = {};
 
 Pos.Service = function() {
     var me = this;
+    me.connected = false;
 }
 
 Pos.Service.prototype = {
+    isConnected: function(callback) {
+        var me = this;
+        if (me.connected) {
+            return true;
+        }
+        var data = {
+            method: 'GET',
+            url: '/customers/1343',
+            key: Config.Pos.api_key,
+            success: function(response) {
+                callback(true)
+                console.log(response);
+            },
+            failure: function() {
+                callback(false)
+                console.log("Failed to connect to POS");
+            }
+        };
+        me._request(data);
+    },
     _request: function(config) {
         var me = this;
         var xhr = me._newXHR();
