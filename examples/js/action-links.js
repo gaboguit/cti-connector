@@ -96,7 +96,7 @@ Cti.Platform.prototype = {
         }
         $('#prenom-' + call.id).replaceWith('<td id="prenom-'+call.id+'"><input type="text" name="prenom" class="form-control" placeholder="prenom" value='+thisCall.firstname+' /></td>');
         $('#nom-' + call.id).replaceWith('<td id="nom-'+call.id+'"><input type="text" name="nom" class="form-control" placeholder="nom" value='+thisCall.lastname+' /></td>');
-        $('#email-' + call.id).replaceWith('<td id="email-'+call.id+'"><input type="text" name="email" class="form-control" placeholder="email" value='+thisCall.email+' /></td>');
+        $('#email-' + call.id).replaceWith('<td id="email-'+call.id+'"><a href="mailto:'+thisCall.email+'" type="text" name="email" class="btn btn-primary"><span class="glyphicon glyphicon-envelope"></span></a></td>');
         $('#note-' + call.id).replaceWith('<td id="note-'+call.id+'"><input type="text" name="note" class="form-control" placeholder="note" value="'+thisCall.note+'" /></td>');
         $('#poslink-' + call.id).replaceWith('<td id="poslink-'+call.id+'"><a href="https://md.phppointofsale.com/index.php/customers/view/'+thisCall.posId+'" target="_blank" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-square-info"></span> View</a></td>');
         me.refreshDisplay(call);
