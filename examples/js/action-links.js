@@ -32,6 +32,7 @@ Cti.Platform = function () {
 Cti.Platform.prototype = {
     username: null,
     calls: {},
+    loadedCustomers: {},
     callEvents: [
         Cti.EVENT.INITIAL, Cti.EVENT.ACCEPTED, Cti.EVENT.RINGING, Cti.EVENT.CONNECTED, Cti.EVENT.ON_HOLD, Cti.EVENT.HANGUP, Cti.EVENT.CANCEL
     ],
@@ -86,8 +87,18 @@ Cti.Platform.prototype = {
             me.calls[call.id].lastname = customer.lastname;
             me.calls[call.id].email = customer.email;
             me.calls[call.id].note = customer.note;
+        } else {
+            me.calls[call.id].posId = "";
+            me.calls[call.id].firstname = "";
+            me.calls[call.id].lastname = "";
+            me.calls[call.id].email = "";
+            me.calls[call.id].note = "";
         }
-        me.calls[call.id].loadingCustomer = false;
+        $('#prenom-' + call.id).replaceWith('<td id="prenom-'+call.id+'"><input type="text" name="prenom" class="form-control" placeholder="prenom" value='+thisCall.firstname+' /></td>');
+        $('#nom-' + call.id).replaceWith('<td id="nom-'+call.id+'"><input type="text" name="nom" class="form-control" placeholder="nom" value='+thisCall.lastname+' /></td>');
+        $('#email-' + call.id).replaceWith('<td id="email-'+call.id+'"><input type="text" name="email" class="form-control" placeholder="email" value='+thisCall.email+' /></td>');
+        $('#note-' + call.id).replaceWith('<td id="note-'+call.id+'"><input type="text" name="note" class="form-control" placeholder="note" value="'+thisCall.note+'" /></td>');
+        $('#poslink-' + call.id).replaceWith('<td id="poslink-'+call.id+'"><a href="https://md.phppointofsale.com/index.php/customers/view/'+thisCall.posId+'" target="_blank" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-square-info"></span> View</a></td>');
         me.refreshDisplay(call);
     },
     parsePhone: function(phone) {
@@ -104,7 +115,6 @@ Cti.Platform.prototype = {
         var me = this;
         if (call.status == "RINGING") {
             if (me.calls[call.id]) {
-                me.calls[call.id].loadingCustomer = true;
                 if (me.calls[call.id].direction == "INBOUND") {
                     var parsedPhone = me.parsePhone(call.source);
                 } else {
@@ -123,6 +133,7 @@ Cti.Platform.prototype = {
                 setTimeout(function() {
                     delete(me.calls[call.id]);
                     $('#call-' + call.id).remove();
+                    me.locks[call.id] = false;
                 }, 30000);
             }
         } else {
@@ -144,31 +155,25 @@ Cti.Platform.prototype = {
         var me = this;
         for (callId in me.calls) {
             thisCall = me.calls[callId];
-            var row = '<tr id="call-' + callId + '">';
-            row += '<td>' + thisCall.status + '</td>';
-            row += '<td>' + thisCall.source + '</td>';
-            row += '<td>' + thisCall.destination + '</td>';
-            row += '<td>' + thisCall.destinationName + '</td>';
-            if (thisCall.loadingCustomer) {
-                row += '<td><div class="boxLoading"></div></td>';
-                row += '<td><div class="boxLoading"></div></td>';
-                row += '<td><div class="boxLoading"></div></td>';
-                row += '<td><div class="boxLoading"></div></td>';
-            } else {
-                row += '<td><input type="text" name="prenom" class="form-control" placeholder="prenom" value=' + thisCall.firstname + ' /></td>';
-                row += '<td><input type="text" name="nom" class="form-control" placeholder="nom" value=' + thisCall.lastname + ' /></td>';
-                row += '<td><input type="text" name="email" class="form-control" placeholder="email" value=' + thisCall.email + ' /></td>';
-                row += '<td><input type="text" name="note" class="form-control" placeholder="note" value="' + thisCall.note + '" /></td>';
-                row += '<td><a href="https://md.phppointofsale.com/index.php/customers/view/' + thisCall.posId + '" target="_blank" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-square-info"></span> View</a></td>';
-            }
-            row += '<td><a href="#" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
-            row += '</tr>';
+            var status = '<td id="status-' + callId + '">' + thisCall.status + '</td>';
             if ($('#call-' + callId).length) {
-                $('#call-' + call.id).replaceWith(row);
-                console.log("REPLACE");
+                $('#status-' + call.id).replaceWith(status);
+                console.log("REPLACED");
             } else {
+                var row = '<tr id="call-' + callId + '">';
+                row += status;
+                row += '<td>' + thisCall.source + '</td>';
+                row += '<td>' + thisCall.destination + '</td>';
+                row += '<td>' + thisCall.destinationName + '</td>';
+                row += '<td id="prenom-'+callId+'"><div class="boxLoading"></div></td>';
+                row += '<td id="nom-'+callId+'"><div class="boxLoading"></div></td>';
+                row += '<td id="email-'+callId+'"><div class="boxLoading"></div></td>';
+                row += '<td id="note-'+callId+'"><div class="boxLoading"></div></td>';
+                row += '<td id="poslink-'+callId+'"><div class="boxLoading"></div></td>';
+                row += '<td><a href="#" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
+                row += '</tr>';
                 $('#calls-table tr:last').after(row);
-                console.log("ADD");
+                console.log("ADDED");
             }
         }
     },
