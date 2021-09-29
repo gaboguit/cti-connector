@@ -81,6 +81,7 @@ Cti.Platform.prototype = {
     assignCustomer: function(call, customer) {
         var me = this;
         if (customer) {
+            me.calls[call.id].posId = customer.personId;
             me.calls[call.id].firstname = customer.firstname;
             me.calls[call.id].lastname = customer.lastname;
             me.calls[call.id].email = customer.email;
@@ -158,6 +159,7 @@ Cti.Platform.prototype = {
                 row += '<td><input type="text" name="nom" class="form-control" placeholder="nom" value=' + thisCall.lastname + ' /></td>';
                 row += '<td><input type="text" name="email" class="form-control" placeholder="email" value=' + thisCall.email + ' /></td>';
                 row += '<td><input type="text" name="note" class="form-control" placeholder="note" value="' + thisCall.note + '" /></td>';
+                row += '<td><a href="https://md.phppointofsale.com/index.php/customers/view/' + thisCall.posId + '" target="_blank" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-square-info"></span> View</a></td>';
             }
             row += '<td><a href="#" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
             row += '</tr>';
