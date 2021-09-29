@@ -84,7 +84,7 @@ Cti.Platform.prototype = {
             me.calls[call.id].firstname = customer.firstname;
             me.calls[call.id].lastname = customer.lastname;
             me.calls[call.id].email = customer.email;
-            me.calls[call.id].note = customer.internalNote;
+            me.calls[call.id].note = customer.note;
         }
         me.calls[call.id].loadingCustomer = false;
         me.refreshDisplay(call);
@@ -157,7 +157,7 @@ Cti.Platform.prototype = {
                 row += '<td><input type="text" name="prenom" class="form-control" placeholder="prenom" value=' + thisCall.firstname + ' /></td>';
                 row += '<td><input type="text" name="nom" class="form-control" placeholder="nom" value=' + thisCall.lastname + ' /></td>';
                 row += '<td><input type="text" name="email" class="form-control" placeholder="email" value=' + thisCall.email + ' /></td>';
-                row += '<td><input type="text" name="note" class="form-control" placeholder="note" value=' + thisCall.note + ' /></td>';
+                row += '<td><input type="text" name="note" class="form-control" placeholder="note" value="' + thisCall.note + '" /></td>';
             }
             row += '<td><a href="#" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
             row += '</tr>';

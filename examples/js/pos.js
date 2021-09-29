@@ -15,13 +15,13 @@ Pos.Service.prototype = {
             method: 'GET',
             url: '/customers/1343',
             key: Config.Pos.api_key,
-            success: function(response) {
-                callback(true)
-                console.log(response);
+            success: function() {
+                callback(true);
             },
-            failure: function() {
-                callback(false)
-                console.log("Failed to connect to POS");
+            failure: function(error) {
+                console.log("Failed to connect to POS. See the error below.");
+                console.log(error);
+                callback(false);
             }
         };
         me._request(data);
@@ -141,7 +141,7 @@ Pos.Customer = function(data) {
     this.comments = data.comments;
     this.company = data.company_name;
     this.accountNumber = data.account_number;
-    this.internalNote = data.internal_notes;
+    this.note = data.custom_fields.notesappels;
     this.balance = data.balance;
     this.creditLimit = data.credit_limit;
     this.points = data.points;
