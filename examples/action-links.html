@@ -10,12 +10,13 @@
             .mb10 {margin-bottom: 10px;}
         </style>
         <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/app.css">
     </head>
     <body>
         <div class="container">
             <h2>CTI Connector - Action Links
                 <button id="disconnect" type="button" style="display: none;" class="btn btn-danger pull-right">
-                    <span class="glyphicon glyphicon-log-out"></span> Disconnect
+                    <span class="glyphicon glyphicon-log-out"></span> Disconnect CTI
                 </button>
             </h2>
 
@@ -52,47 +53,48 @@
                 <div class="tab-content" id="transfer-tabs-content">
                     <div id="agents" class="tab-pane active" role="tabpanel">
                         <h4>Active calls</h4>
-                        <table class="table table-striped" id="calls-table">
-                            <thead>
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Source</th>
-                                    <th>Destination</th>
-                                    <th>Destination Name</th>
-                                    <th>Prenom</th>
-                                    <th>Nom</th>
-                                    <th>Email</th>
-                                    <th>Note</th>
-                                    <th>POS</th>
-                                    <th>Action Text</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!--
-                                <tr>
-                                    <td>Test One</td>
-                                    <td>10032</td>
-                                    <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
-                                    <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
-                                    <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10032"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Test Two</td>
-                                    <td>10042</td>
-                                    <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
-                                    <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
-                                    <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10042"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
-                                </tr>
-                                -->
-                            </tbody>
-                        </table>
+                        <form id="customerForm" method="POST">
+                            <table class="table table-striped" id="calls-table">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Source</th>
+                                        <th>Destination</th>
+                                        <th>Destination Name</th>
+                                        <th>Prenom</th>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Note</th>
+                                        <th>POS</th>
+                                        <th>Update</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!--
+                                    <tr>
+                                        <td>Test One</td>
+                                        <td>10032</td>
+                                        <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
+                                        <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
+                                        <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10032"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Test Two</td>
+                                        <td>10042</td>
+                                        <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
+                                        <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
+                                        <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10042"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
+                                    </tr>
+                                    -->
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
-
             </div>
-
         </div>
+        <div id="snackbar"></div>>
 
         <script type="text/javascript" src="../sip.min.js"></script>
         <script type="text/javascript" src="config.js"></script>

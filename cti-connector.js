@@ -61,7 +61,6 @@ var Cti = {
             if (typeof message === "string") {
                 message = "Cti: " + message;
             }
-            console.info(message);
         }
     }
 };

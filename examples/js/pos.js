@@ -35,9 +35,6 @@ Pos.Service.prototype = {
         if (config.key) {
             xhr.setRequestHeader("x-api-key", config.key);
         }
-        if (config.data) {
-            xhr.setRequestHeader("Content-length", JSON.stringify(config.data));
-        }
         xhr.setRequestHeader("accept", "application/json");
         xhr.onreadystatechange = function () {
             if (xhr.readyState !== 4) {
@@ -115,7 +112,6 @@ Pos.Service.prototype = {
             key: Config.Pos.api_key,
             success: function(response) {
                 var customer = new Pos.Customer(response[0]);
-                console.log(customer);
                 callback(call, customer);
             },
             failure: function() {
@@ -124,6 +120,35 @@ Pos.Service.prototype = {
             }
         };
         me._request(data);
+    },
+    updateCustomer: function(callback, id, prenom, nom, note) {
+        var me = this;
+        if (prenom || nom || note) {
+            var data = {
+                method: 'POST',
+                url: '/customers/' + id,
+                key: Config.Pos.api_key,
+                data: {
+                    first_name: prenom,
+                    last_name: nom,
+                    custom_fields: {
+                        notesappels: note
+                    }
+                },
+                success: function(response) {
+                    console.log("Customer successfully updated.");
+                    console.log(response);
+                    callback(response);
+                },
+                failure: function(error) {
+                    console.log("Failed to update the customer's information.");
+                    callback(error);
+                }
+            };
+            me._request(data);
+        } else {
+            console.log("Not updating empty customer values.")
+        }
     }
 }
 

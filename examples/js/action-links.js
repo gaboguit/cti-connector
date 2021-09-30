@@ -99,7 +99,24 @@ Cti.Platform.prototype = {
         $('#email-' + call.id).replaceWith('<td id="email-'+call.id+'"><a href="mailto:'+thisCall.email+'" type="text" name="email" class="btn btn-primary"><span class="glyphicon glyphicon-envelope"></span></a></td>');
         $('#note-' + call.id).replaceWith('<td id="note-'+call.id+'"><input type="text" name="note" class="form-control" placeholder="note" value="'+thisCall.note+'" /></td>');
         $('#poslink-' + call.id).replaceWith('<td id="poslink-'+call.id+'"><a href="https://md.phppointofsale.com/index.php/customers/view/'+thisCall.posId+'" target="_blank" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-square-info"></span> View</a></td>');
-        me.refreshDisplay(call);
+        me.refreshDisplay();
+    },
+    submitCustomer: function(callId) {
+        var me = this;
+        var call = me.calls[callId];
+        if (call) {
+            var bindedCallback = me.updateResult.bind(me);
+            var firstname = $("#prenom-"+callId)[0].children[0].value;
+            var lastname = $("#nom-"+callId)[0].children[0].value;
+            var note = $("#note-"+callId)[0].children[0].value;
+            pos.updateCustomer(bindedCallback, call.posId, firstname, lastname, note);
+        }
+    },
+    updateCustomer: function() {
+
+    },
+    updateResult: function(response) {
+        
     },
     parsePhone: function(phone) {
         var num = phone.match(/\d/g);
@@ -122,19 +139,19 @@ Cti.Platform.prototype = {
                 }
                 var bindedCallback = me.assignCustomer.bind(me);
                 pos.getCustomer(parsedPhone, call, bindedCallback);
-                me.refreshDisplay(call);
+                me.refreshDisplay();
             }
         }
         if (call.status == "HANGUP" ) {
             if (me.calls[call.id]) {
                 me.calls[call.id].status = call.status;
-                me.refreshDisplay(call);
+                me.refreshDisplay();
                 clearInterval(refreshTimer);
                 setTimeout(function() {
                     delete(me.calls[call.id]);
                     $('#call-' + call.id).remove();
                     me.locks[call.id] = false;
-                }, 30000);
+                }, 300000);
             }
         } else {
             if (!me.calls[call.id]) {
@@ -147,33 +164,31 @@ Cti.Platform.prototype = {
         if (call.status == "CONNECTED" ) {
             me.calls[call.id].status = call.status;
             var refreshTimer = setInterval(function() {
-                me.refreshDisplay(call);
+                me.refreshDisplay();
             }, 3000);
         }
     },
-    refreshDisplay: function(call) {
+    refreshDisplay: function() {
         var me = this;
         for (callId in me.calls) {
             thisCall = me.calls[callId];
             var status = '<td id="status-' + callId + '">' + thisCall.status + '</td>';
             if ($('#call-' + callId).length) {
-                $('#status-' + call.id).replaceWith(status);
-                console.log("REPLACED");
+                $('#status-' + callId).replaceWith(status);
             } else {
                 var row = '<tr id="call-' + callId + '">';
                 row += status;
                 row += '<td>' + thisCall.source + '</td>';
                 row += '<td>' + thisCall.destination + '</td>';
                 row += '<td>' + thisCall.destinationName + '</td>';
-                row += '<td id="prenom-'+callId+'"><div class="boxLoading"></div></td>';
-                row += '<td id="nom-'+callId+'"><div class="boxLoading"></div></td>';
-                row += '<td id="email-'+callId+'"><div class="boxLoading"></div></td>';
-                row += '<td id="note-'+callId+'"><div class="boxLoading"></div></td>';
-                row += '<td id="poslink-'+callId+'"><div class="boxLoading"></div></td>';
-                row += '<td><a href="#" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>';
+                row += '<td id="prenom-' + callId + '"><div class="boxLoading"></div></td>';
+                row += '<td id="nom-' + callId + '"><div class="boxLoading"></div></td>';
+                row += '<td id="email-' + callId + '"><div class="boxLoading"></div></td>';
+                row += '<td id="note-' + callId + '"><div class="boxLoading"></div></td>';
+                row += '<td id="poslink-' + callId + '"><div class="boxLoading"></div></td>';
+                row += '<td><a href="#" onclick="Cti.Platform.prototype.submitCustomer('+callId+')" class="btn btn-primary"><span class="glyphicon glyphicon-left-arrow"></span></a></td>';
                 row += '</tr>';
                 $('#calls-table tr:last').after(row);
-                console.log("ADDED");
             }
         }
     },
