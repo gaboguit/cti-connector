@@ -111,8 +111,12 @@ Pos.Service.prototype = {
             url: '/customers?limit=1&search_field=phone_number&search=' + phone,
             key: Config.Pos.api_key,
             success: function(response) {
-                var customer = new Pos.Customer(response[0]);
-                callback(call, customer);
+                console.log(response);
+                console.log(response.length);
+                if (response.length) {
+                    var customer = new Pos.Customer(response[0]);
+                    callback(call, customer);
+                }
             },
             failure: function() {
                 console.log("Failed to retrieve the customer's information.");
@@ -138,11 +142,12 @@ Pos.Service.prototype = {
                 success: function(response) {
                     console.log("Customer successfully updated.");
                     console.log(response);
-                    callback(response);
+                    callback(true);
                 },
                 failure: function(error) {
-                    console.log("Failed to update the customer's information.");
-                    callback(error);
+                    console.log("Failed to update the customer's information. See the error below.");
+                    console.log(error);
+                    callback(false);
                 }
             };
             me._request(data);
@@ -166,7 +171,7 @@ Pos.Customer = function(data) {
     this.comments = data.comments;
     this.company = data.company_name;
     this.accountNumber = data.account_number;
-    this.note = data.custom_fields.notesappels;
+    this.note = data.custom_fields.notesappels || "";
     this.balance = data.balance;
     this.creditLimit = data.credit_limit;
     this.points = data.points;

@@ -13,15 +13,15 @@
         <link rel="stylesheet" href="css/app.css">
     </head>
     <body>
-        <div class="container">
-            <h2>CTI Connector - Action Links
-                <button id="disconnect" type="button" style="display: none;" class="btn btn-danger pull-right">
+        <div class="container pt-4">
+            <h3>CTI Connector - Action Links
+                <button id="disconnect" type="button" style="display: none;" class="btn btn-danger float-end">
                     <span class="glyphicon glyphicon-log-out"></span> Disconnect CTI
                 </button>
-            </h2>
+            </h3>
 
             <div class="row">
-                <p>CTI: <span class="label label-default" id="cti-status">Not connected</span>
+                <p>CTI: <span class="p-0 alert alert-secondary" id="cti-status">Not connected</span>
                     <button id="call-answer" type="button" class="btn btn-success" style="display: none;">
                         <span class="glyphicon glyphicon-earphone" aria-hidden="true"></span> Answer
                     </button>
@@ -29,72 +29,78 @@
             </div>
 
             <div class="row">
-                <p>POS: <span class="label label-default" id="pos-status">Not connected</span>
+                <p>POS: <span class="p-0 alert alert-secondary" role="alert" id="pos-status">Not connected</span>
                     <button id="call-answer" type="button" class="btn btn-success" style="display: none;">
                         <span class="glyphicon glyphicon-earphone" aria-hidden="true"></span> Answer
                     </button>
                 </p>
             </div>
 
-            <div id="login-form" class="row">
-                <form class="form-inline">
-                    <input id="username" type="text" name="username" class="form-control" placeholder="E-mail address" />
-                    <input id="password" type="password" name="password" class="form-control" placeholder="Password" />
-                    <input id="connect-with-username-password" type="button" value="Connect" class="btn btn-success" />
+            <div id="login-form">
+                <form class="form-inline row row-cols-auto">
+                    <input id="username" type="text" name="username" class="form-control col" style="width:20vw;" placeholder="E-mail address"/>
+                    <input id="password" type="password" name="password" class="form-control col" style="width:20vw;" placeholder="Password"/>
+                    <input id="connect-with-username-password" type="button" value="Connect" class="btn btn-success col"/>
                 </form>
                 <p class="mt10 mb10">or</p>
-                <form class="form-inline">
-                    <input id="api_key" type="text" name="api_key" class="form-control" placeholder="User Id:API KEY" />
-                    <input id="connect-with-api-key" type="button" value="Connect" class="btn btn-success" />
+                <form class="form-inline row row-cols-auto">
+                    <input id="api_key" type="text" name="api_key" class="form-control col" style="width:20vw;" placeholder="User Id:API KEY" />
+                    <input id="connect-with-api-key" type="button" value="Connect" class="btn btn-success col" />
                 </form>
             </div>
 
-            <div class="row" id="transfer-table" >
+            <div class="row" id="transfer-table">
                 <div class="tab-content" id="transfer-tabs-content">
                     <div id="agents" class="tab-pane active" role="tabpanel">
                         <h4>Active calls</h4>
-                        <form id="customerForm" method="POST">
-                            <table class="table table-striped" id="calls-table">
-                                <thead>
-                                    <tr>
-                                        <th>Status</th>
-                                        <th>Source</th>
-                                        <th>Destination</th>
-                                        <th>Destination Name</th>
-                                        <th>Prenom</th>
-                                        <th>Nom</th>
-                                        <th>Email</th>
-                                        <th>Note</th>
-                                        <th>POS</th>
-                                        <th>Update</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!--
-                                    <tr>
-                                        <td>Test One</td>
-                                        <td>10032</td>
-                                        <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
-                                        <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
-                                        <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10032"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Test Two</td>
-                                        <td>10042</td>
-                                        <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
-                                        <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
-                                        <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10042"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
-                                    </tr>
-                                    -->
-                                </tbody>
-                            </table>
-                        </form>
+                        <table class="table table-striped" id="calls-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Source</th>
+                                    <th>Destination</th>
+                                    <th>Destination Name</th>
+                                    <th>Prenom</th>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Note</th>
+                                    <th>POS</th>
+                                    <th>Update</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!--
+                                <tr>
+                                    <td>Test One</td>
+                                    <td>10032</td>
+                                    <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
+                                    <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
+                                    <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10032"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Test Two</td>
+                                    <td>10042</td>
+                                    <td><input type="text" name="action_url" class="form-control" placeholder="URL..." /></td>
+                                    <td><input type="text" name="action_text" class="form-control" placeholder="Label..." /></td>
+                                    <td><a href="#" class="call-transfer-confirm btn btn-primary" call-extension="10042"><span class="glyphicon glyphicon-arrow-right"></span> Set</a></td>
+                                </tr>
+                                -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="snackbar"></div>>
+        <div class="d-flex justify-content-center">
+            <div class="toast position-fixed bottom-0 center" style="z-index:11;" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                <div class="toast-header">
+                    <strong class="me-auto">POS Service</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body text-white"></div>
+            </div>
+        </div>
 
         <script type="text/javascript" src="../sip.min.js"></script>
         <script type="text/javascript" src="config.js"></script>

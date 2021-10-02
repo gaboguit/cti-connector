@@ -1,4 +1,4 @@
-
+const { Toast } = bootstrap;
 var connector;
 var pos;
 
@@ -15,7 +15,7 @@ Cti.Platform = function () {
     $('#cti-status').html("Loading connector...");
     $('#cti-status')
             .removeClass()
-            .addClass('label label-warning');
+            .addClass('p-0 alert alert-warning');
     connector = new Cti.Connector({
         // callback
         onMessage: function(message) {
@@ -25,7 +25,7 @@ Cti.Platform = function () {
     $('#pos-status').html("Loading service...");
     $('#pos-status')
             .removeClass()
-            .addClass('label label-warning');
+            .addClass('p-0 alert alert-warning');
     pos = new Pos.Service();
 };
 
@@ -43,14 +43,14 @@ Cti.Platform.prototype = {
             $('#cti-status')
                     .html("Platform ready: Not connected.")
                     .removeClass()
-                    .addClass('label label-info');
+                    .addClass('p-0 alert alert-info');
         }
         var bindedCallback = me.connectPos.bind(me);
         if (!pos.isConnected(bindedCallback)) {
             $('#pos-status')
                 .html("Authentication...")
                 .removeClass()
-                .addClass('label label-warning');
+                .addClass('p-0 alert alert-warning');
         }
     },
     connectPos: function(connected) {
@@ -58,12 +58,12 @@ Cti.Platform.prototype = {
             $('#pos-status')
                     .html("Connected")
                     .removeClass()
-                    .addClass('label label-success');
+                    .addClass('p-0 alert alert-success');
             } else {
                 $('#pos-status')
                     .html("Error")
                     .removeClass()
-                    .addClass('label label-danger');
+                    .addClass('p-0 alert alert-danger');
         }
     },
     login: function () {
@@ -71,13 +71,23 @@ Cti.Platform.prototype = {
         $('#cti-status')
             .html("Authentication " + username + "...")
             .removeClass()
-            .addClass('label label-warning');
+            .addClass('p-0 alert alert-warning');
         this.username = username;
         connector.login.apply(connector, arguments);
     },
     logout: function () {
         this.username = null;
         connector.logout();
+    },
+    customerFromCall: function(call) {
+        var me = this;
+        if (call.direction == "INBOUND") {
+            var parsedPhone = me.parsePhone(call.source);
+        } else {
+            var parsedPhone = me.parsePhone(call.destination);
+        }
+        var bindedCallback = me.assignCustomer.bind(me);
+        pos.getCustomer(parsedPhone, call, bindedCallback);
     },
     assignCustomer: function(call, customer) {
         var me = this;
@@ -88,7 +98,7 @@ Cti.Platform.prototype = {
             me.calls[call.id].email = customer.email;
             me.calls[call.id].note = customer.note;
         } else {
-            me.calls[call.id].posId = "";
+            me.calls[call.id].posId = "ERROR";
             me.calls[call.id].firstname = "";
             me.calls[call.id].lastname = "";
             me.calls[call.id].email = "";
@@ -112,11 +122,18 @@ Cti.Platform.prototype = {
             pos.updateCustomer(bindedCallback, call.posId, firstname, lastname, note);
         }
     },
-    updateCustomer: function() {
-
-    },
     updateResult: function(response) {
-        
+        if (response) {
+            $(".toast").removeClass("bg-danger");
+            $(".toast").addClass("bg-success");
+            $(".toast-body").text("Customer updated successfully");
+        } else {
+            $(".toast").removeClass("bg-success");
+            $(".toast").addClass("bg-danger");
+            $(".toast-body").text("Failed to update the customer.");
+        }
+        var toast = new Toast($(".toast"));
+        toast.show();
     },
     parsePhone: function(phone) {
         var num = phone.match(/\d/g);
@@ -132,13 +149,6 @@ Cti.Platform.prototype = {
         var me = this;
         if (call.status == "RINGING") {
             if (me.calls[call.id]) {
-                if (me.calls[call.id].direction == "INBOUND") {
-                    var parsedPhone = me.parsePhone(call.source);
-                } else {
-                    var parsedPhone = me.parsePhone(call.destination);
-                }
-                var bindedCallback = me.assignCustomer.bind(me);
-                pos.getCustomer(parsedPhone, call, bindedCallback);
                 me.refreshDisplay();
             }
         }
@@ -150,8 +160,7 @@ Cti.Platform.prototype = {
                 setTimeout(function() {
                     delete(me.calls[call.id]);
                     $('#call-' + call.id).remove();
-                    me.locks[call.id] = false;
-                }, 300000);
+                }, 30000);
             }
         } else {
             if (!me.calls[call.id]) {
@@ -175,6 +184,9 @@ Cti.Platform.prototype = {
             var status = '<td id="status-' + callId + '">' + thisCall.status + '</td>';
             if ($('#call-' + callId).length) {
                 $('#status-' + callId).replaceWith(status);
+                if (!thisCall.posId && thisCall.posId != "ERROR") {
+                    me.customerFromCall(thisCall);
+                }
             } else {
                 var row = '<tr id="call-' + callId + '">';
                 row += status;
@@ -186,7 +198,7 @@ Cti.Platform.prototype = {
                 row += '<td id="email-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="note-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="poslink-' + callId + '"><div class="boxLoading"></div></td>';
-                row += '<td><a href="#" onclick="Cti.Platform.prototype.submitCustomer('+callId+')" class="btn btn-primary"><span class="glyphicon glyphicon-left-arrow"></span></a></td>';
+                row += '<td><a href="#" onclick="Cti.Platform.prototype.submitCustomer('+callId+')" class="btn btn-primary"><span class="glyphicon glyphicon-left-arrow"></span> Set</a></td>';
                 row += '</tr>';
                 $('#calls-table tr:last').after(row);
             }
@@ -200,7 +212,7 @@ Cti.Platform.prototype = {
             $('#cti-status')
                     .html("Connected")
                     .removeClass()
-                    .addClass('label label-success');
+                    .addClass('p-0 alert alert-success');
             $('#disconnect').show();
             $('#login-form').hide();
             if (me.bootstrap) {
@@ -215,7 +227,7 @@ Cti.Platform.prototype = {
             $('#cti-status')
                     .html("Error")
                     .removeClass()
-                    .addClass('label label-danger');
+                    .addClass('p-0 alert alert-danger');
             alert(event.message);
         }
         if (event.name === Cti.EVENT.LOGGED_IN) {}
@@ -224,7 +236,7 @@ Cti.Platform.prototype = {
             $('#cti-status')
                     .html("Platform ready: Not connected.")
                     .removeClass()
-                    .addClass('label label-info');
+                    .addClass('p-0 alert alert-info');
             $('#login-form').show();
             $('#disconnect').hide();
         }
