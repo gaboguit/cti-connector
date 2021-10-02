@@ -111,8 +111,6 @@ Pos.Service.prototype = {
             url: '/customers?limit=1&search_field=phone_number&search=' + phone,
             key: Config.Pos.api_key,
             success: function(response) {
-                console.log(response);
-                console.log(response.length);
                 if (response.length) {
                     var customer = new Pos.Customer(response[0]);
                     callback(call, customer);
@@ -125,12 +123,12 @@ Pos.Service.prototype = {
         };
         me._request(data);
     },
-    updateCustomer: function(callback, id, prenom, nom, note) {
+    updateCustomer: function(callback, call, prenom, nom, note) {
         var me = this;
         if (prenom || nom || note) {
             var data = {
                 method: 'POST',
-                url: '/customers/' + id,
+                url: '/customers/' + call.posId,
                 key: Config.Pos.api_key,
                 data: {
                     first_name: prenom,
@@ -140,14 +138,12 @@ Pos.Service.prototype = {
                     }
                 },
                 success: function(response) {
-                    console.log("Customer successfully updated.");
-                    console.log(response);
-                    callback(true);
+                    callback(true, call);
                 },
                 failure: function(error) {
                     console.log("Failed to update the customer's information. See the error below.");
                     console.log(error);
-                    callback(false);
+                    callback(false, call);
                 }
             };
             me._request(data);

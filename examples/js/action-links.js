@@ -106,23 +106,25 @@ Cti.Platform.prototype = {
         }
         $('#prenom-' + call.id).replaceWith('<td id="prenom-'+call.id+'"><input type="text" name="prenom" class="form-control" placeholder="prenom" value='+thisCall.firstname+' /></td>');
         $('#nom-' + call.id).replaceWith('<td id="nom-'+call.id+'"><input type="text" name="nom" class="form-control" placeholder="nom" value='+thisCall.lastname+' /></td>');
-        $('#email-' + call.id).replaceWith('<td id="email-'+call.id+'"><a href="mailto:'+thisCall.email+'" type="text" name="email" class="btn btn-primary"><span class="glyphicon glyphicon-envelope"></span></a></td>');
+        $('#email-' + call.id).replaceWith('<td id="email-'+call.id+'"><a href="mailto:'+thisCall.email+'" type="text" name="email" class="btn btn-primary"><i class="bi-envelope-fill"></i></a></td>');
         $('#note-' + call.id).replaceWith('<td id="note-'+call.id+'"><input type="text" name="note" class="form-control" placeholder="note" value="'+thisCall.note+'" /></td>');
-        $('#poslink-' + call.id).replaceWith('<td id="poslink-'+call.id+'"><a href="https://md.phppointofsale.com/index.php/customers/view/'+thisCall.posId+'" target="_blank" onclick="" class="btn btn-primary"><span class="glyphicon glyphicon-square-info"></span> View</a></td>');
+        $('#poslink-' + call.id).replaceWith('<td id="poslink-'+call.id+'"><a href="https://md.phppointofsale.com/index.php/customers/view/'+thisCall.posId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>');
         me.refreshDisplay();
     },
     submitCustomer: function(callId) {
         var me = this;
         var call = me.calls[callId];
         if (call) {
+            $('#update-' + call.id).replaceWith('<td id="update-' + callId + '"><div class="boxLoading"></div></td>');
             var bindedCallback = me.updateResult.bind(me);
             var firstname = $("#prenom-"+callId)[0].children[0].value;
             var lastname = $("#nom-"+callId)[0].children[0].value;
             var note = $("#note-"+callId)[0].children[0].value;
-            pos.updateCustomer(bindedCallback, call.posId, firstname, lastname, note);
+            pos.updateCustomer(bindedCallback, call, firstname, lastname, note);
         }
     },
-    updateResult: function(response) {
+    updateResult: function(response, call) {
+        $('#update-' + call.id).replaceWith('<td id="update-' + callId + '"><a href="#" onclick="Cti.Platform.prototype.submitCustomer('+callId+')" class="btn btn-primary"><i class="bi-arrow-right"></i></a></td>');
         if (response) {
             $(".toast").removeClass("bg-danger");
             $(".toast").addClass("bg-success");
@@ -198,7 +200,7 @@ Cti.Platform.prototype = {
                 row += '<td id="email-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="note-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="poslink-' + callId + '"><div class="boxLoading"></div></td>';
-                row += '<td><a href="#" onclick="Cti.Platform.prototype.submitCustomer('+callId+')" class="btn btn-primary"><span class="glyphicon glyphicon-left-arrow"></span> Set</a></td>';
+                row += '<td id="update-' + callId + '"><a href="#" onclick="Cti.Platform.prototype.submitCustomer('+callId+')" class="btn btn-primary"><i class="bi-arrow-right"></i></a></td>';
                 row += '</tr>';
                 $('#calls-table tr:last').after(row);
             }
