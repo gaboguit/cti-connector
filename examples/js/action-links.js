@@ -188,7 +188,7 @@ Cti.Platform.prototype = {
                 setTimeout(function() {
                     delete(me.calls[call.id]);
                     $('#call-' + call.id).remove();
-                }, 30000000);
+                }, 30000);
             }
         } else {
             if (!me.calls[call.id]) {
