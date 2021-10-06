@@ -150,6 +150,39 @@ Pos.Service.prototype = {
         } else {
             console.log("Not updating empty customer values.")
         }
+    },
+    getSales: function(personId, call, callback) {
+        var me = this;
+        var today = new Date();
+        var strToday = 'Y-m-d'
+            .replace('Y', today.getFullYear())
+            .replace('m', ('0'+(today.getMonth()+1)).slice(-2))
+            .replace('d', ('0'+today.getDate()).slice(-2));
+        var prevPeriod = new Date();
+        var strPrevPeriod = 'Y-m-d'
+            .replace('Y', prevPeriod.getFullYear() - 20)
+            .replace('m', ('0'+(prevPeriod.getMonth()+1)).slice(-2))
+            .replace('d', ('0'+prevPeriod.getDate()).slice(-2));
+        var data = {
+            method: 'GET',
+            url: '/sales?customer_id='+personId+'&start_date='+strPrevPeriod+'&end_date='+strToday,
+            key: Config.Pos.api_key,
+            success: function(response) {
+                // For some reasons, this is reached more often than the request is called
+                var sales = [];
+                if (response.length) {
+                    response.forEach(function(item) {
+                        sales.push(new Pos.Sale(item));
+                    });
+                    callback(call, sales);
+                }
+            },
+            failure: function() {
+                console.log("Failed to retrieve the customer's information.");
+                callback(call, "FAILURE");
+            }
+        };
+        me._request(data);
     }
 }
 
@@ -177,3 +210,33 @@ Pos.Customer = function(data) {
 }
 
 Pos.Customer.prototype.constructor = Pos.Customer;
+
+Pos.Sale = function(data) {
+    this.saleId = data.sale_id;
+    this.saleTime = data.sale_time;
+    this.pointsUsed = data.points_used;
+    this.pointsGained = data.points_gained;
+    this.employeeId = data.employee_id;
+    this.deleted = data.deleted;
+    this.comment = data.comment;
+    this.storeAccountPayment = data.store_account_payment;
+    this.registerId = data.register_id;
+    this.customerId = data.customer_id;
+    this.customerBalance = data.customer_balance;
+    this.customerPoints = data.customer_points;
+    this.soldByEmployeeId = data.sold_by_employee_id;
+    this.discountReason = data.discount_reason;
+    this.hasDelivery = data.has_delivery;
+    this.delivery = data.delivery;
+    this.subtotal = data.subtotal;
+    this.tax = data.tax;
+    this.total = data.total;
+    this.tip = data.tip;
+    this.profit = data.profit;
+    this.customFields = data.custom_fields;
+    this.returnSaleId = data.return_sale_id;
+    this.payments = data.payments;
+    this.cartItems = data.cart_items;
+}
+
+Pos.Sale.prototype.constructor = Pos.Sale;

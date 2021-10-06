@@ -97,6 +97,9 @@ Cti.Platform.prototype = {
             me.calls[call.id].lastname = customer.lastname;
             me.calls[call.id].email = customer.email;
             me.calls[call.id].note = customer.note;
+            // Retrieves the customer's previous sales
+            var bindedCallback = me.assignSales.bind(me);
+            pos.getSales(customer.personId, call, bindedCallback);
         } else {
             me.calls[call.id].posId = "ERROR";
             me.calls[call.id].firstname = "";
@@ -110,6 +113,29 @@ Cti.Platform.prototype = {
         $('#note-' + call.id).replaceWith('<td id="note-'+call.id+'"><input type="text" name="note" class="form-control" placeholder="note" value="'+thisCall.note+'" /></td>');
         $('#poslink-' + call.id).replaceWith('<td id="poslink-'+call.id+'"><a href="https://md.phppointofsale.com/index.php/customers/view/'+thisCall.posId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>');
         me.refreshDisplay();
+    },
+    assignSales: function(call, sales) {
+        var me = this;
+        if (sales == "FAILURE") {
+            me.calls[call.id].sales = "FAILURE";
+            $('#factures-' + call.id).replaceWith('<td id="factures-'+call.id+'">error</td>');
+        } else {
+            me.calls[call.id].sales = sales;
+            $('#factures-' + call.id).replaceWithPush('<td id="factures-'+call.id+'"><a type="button" class="btn btn-secondary" id="sales-button-'+call.id+'"><i class="bi-cash-coin"></i></a></td>');
+            var popoverBtn = document.getElementById('sales-button-'+call.id);
+            var popover = new bootstrap.Popover(popoverBtn, {
+                title: 'Ventes précédentes',
+                placement: 'bottom',
+                boundary: 'window',
+                trigger: 'click hover',
+                html: true,
+                container: 'body',
+                content: function() {
+                    var table = salesTemplate(call.id, sales);
+                    return table;
+                }
+            });
+        }
     },
     submitCustomer: function(callId) {
         var me = this;
@@ -162,7 +188,7 @@ Cti.Platform.prototype = {
                 setTimeout(function() {
                     delete(me.calls[call.id]);
                     $('#call-' + call.id).remove();
-                }, 30000);
+                }, 30000000);
             }
         } else {
             if (!me.calls[call.id]) {
@@ -199,6 +225,7 @@ Cti.Platform.prototype = {
                 row += '<td id="nom-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="email-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="note-' + callId + '"><div class="boxLoading"></div></td>';
+                row += '<td id="factures-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="poslink-' + callId + '"><div class="boxLoading"></div></td>';
                 row += '<td id="update-' + callId + '"><a href="#" onclick="Cti.Platform.prototype.submitCustomer('+callId+')" class="btn btn-primary"><i class="bi-arrow-right"></i></a></td>';
                 row += '</tr>';
@@ -270,4 +297,56 @@ $().ready(function () {
     $('#disconnect').click(function() {
         platform.logout();
     });
+    // Configure bootstrap's sanitizer
+    var myDefaultAllowList = bootstrap.Tooltip.Default.allowList;
+    myDefaultAllowList.table = [];
+    myDefaultAllowList.thead = [];
+    myDefaultAllowList.tbody = [];
+    myDefaultAllowList.tr = ['data-bs-option'];
+    myDefaultAllowList.td = ['data-bs-option'];
+    myDefaultAllowList.th = ['data-bs-option'];
 });
+
+var salesTemplate = function(callId, sales) {
+    var template = $('<div class="row sales-popover-'+callId+'"> \
+        <div class="tab-content"> \
+            <div class="tab-pane active" role="tabpanel"> \
+                <table class="table table-striped" id="sales-table-'+callId+'"> \
+                    <thead><tr> \
+                        <th>ID</th> \
+                        <th>Date</th> \
+                        <th>Sous-Total</th> \
+                        <th>Total</th> \
+                        <th>Nb. Articles</th> \
+                        <th>Commande</th> \
+                        <th>POS</th> \
+                    </tr></thead> \
+                    <tbody></tbody> \
+                </table> \
+            </div> \
+        </div> \
+    </div>');
+
+    for (var i = 0; i < 5 && i < sales.length; i++) {
+        var index = sales.length - i - 1;
+        var sale = sales[index];
+        var row = '<tr>';
+        row += '<td>' + sale.saleId + '</td>';
+        row += '<td>' + sale.saleTime + '</td>';
+        row += '<td>' + sale.subtotal + '</td>';
+        row += '<td>' + sale.total + '</td>';
+        row += '<td>' + sale.cartItems.length + '</td>';
+        row += '<td>' + (sale.customFields.commande ? 'Oui' : "Non") + '</td>';
+        //https://md.phppointofsale.com/index.php/sales/receipt/59759
+        row += '<td><a href="https://md.phppointofsale.com/index.php/sales/receipt/'+sale.saleId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>';
+        row += '</tr>';
+        template.find('#sales-table-'+callId+' tr:last').after(row);
+    }
+    return template;
+};
+
+$.fn.replaceWithPush = function (a) {
+  var $a = $(a);
+  this.replaceWith($a);
+  return $a;
+};
