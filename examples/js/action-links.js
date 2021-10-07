@@ -97,6 +97,7 @@ Cti.Platform.prototype = {
             me.calls[call.id].lastname = customer.lastname;
             me.calls[call.id].email = customer.email;
             me.calls[call.id].note = customer.note;
+            me.calls[call.id].balance = customer.balance;
             // Retrieves the customer's previous sales
             var bindedCallback = me.assignSales.bind(me);
             pos.getSales(customer.personId, call, bindedCallback);
@@ -131,7 +132,7 @@ Cti.Platform.prototype = {
                 html: true,
                 container: 'body',
                 content: function() {
-                    var table = salesTemplate(call.id, sales);
+                    var table = salesTemplate(call, sales);
                     return table;
                 }
             });
@@ -308,12 +309,18 @@ $().ready(function () {
     myDefaultAllowList.th = ['data-bs-option'];
 });
 
-var salesTemplate = function(callId, sales) {
+var salesTemplate = function(call, sales) {
+    if (call.balance) {
+        var balance = '<span id="balance-'+call.id+'" class="bg-warning text-dark">Balance: '+call.balance+'$</span>';
+    } else {
+        var balance = '';
+    }
     var template = $(
-    '<div class="row sales-popover-'+callId+'"> \
+    '<div class="row sales-popover-'+call.id+'"> \
         <div class="tab-content"> \
+            '+balance+' \
             <div class="tab-pane active" role="tabpanel"> \
-                <table class="table table-striped" id="sales-table-'+callId+'"> \
+                <table class="table table-striped" id="sales-table-'+call.id+'"> \
                     <thead><tr> \
                         <th>ID</th> \
                         <th>Date</th> \
@@ -328,7 +335,6 @@ var salesTemplate = function(callId, sales) {
             </div> \
         </div> \
     </div>');
-
     for (var i = 0; i < 5 && i < sales.length; i++) {
         var index = sales.length - i - 1;
         var sale = sales[index];
@@ -339,10 +345,9 @@ var salesTemplate = function(callId, sales) {
         row += '<td>' + sale.total + '</td>';
         row += '<td>' + sale.cartItems.length + '</td>';
         row += '<td>' + (sale.customFields.commande ? 'Oui' : "Non") + '</td>';
-        //https://md.phppointofsale.com/index.php/sales/receipt/59759
         row += '<td><a href="https://md.phppointofsale.com/index.php/sales/receipt/'+sale.saleId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>';
         row += '</tr>';
-        template.find('#sales-table-'+callId+' tr:last').after(row);
+        template.find('#sales-table-'+call.id+' tr:last').after(row);
     }
     return template;
 };
