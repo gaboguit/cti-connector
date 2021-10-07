@@ -274,21 +274,25 @@ Cti.Platform.prototype = {
     updateSalesTable: function(nbSales, callId) {
         var me = this;
         var call = me.calls[callId];
-        var table = $('#sales-table-'+callId);
-        table.find('tbody tr').empty();
-        for (var i = 0; i < nbSales && i < call.sales.length; i++) {
-            var index = call.sales.length - i - 1;
-            var sale = call.sales[index];
-            var row = '<tr>';
-            row += '<td>' + sale.saleId + '</td>';
-            row += '<td>' + sale.saleTime + '</td>';
-            row += '<td>' + sale.subtotal + '</td>';
-            row += '<td>' + sale.total + '</td>';
-            row += '<td>' + sale.cartItems.length + '</td>';
-            row += '<td>' + (sale.customFields.commande ? 'Oui' : "Non") + '</td>';
-            row += '<td><a href="https://md.phppointofsale.com/index.php/sales/receipt/'+sale.saleId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>';
-            row += '</tr>';
-            table.find('tbody').append(row);
+        if (call) {
+            var table = $('#sales-table-'+callId);
+            table.find('tbody tr').empty();
+            for (var i = 0; i < nbSales && i < call.sales.length; i++) {
+                var index = call.sales.length - i - 1;
+                var sale = call.sales[index];
+                var row = '<tr>';
+                row += '<td>' + sale.saleId + '</td>';
+                row += '<td>' + sale.saleTime + '</td>';
+                row += '<td>' + sale.subtotal + '</td>';
+                row += '<td>' + sale.total + '</td>';
+                row += '<td>' + sale.cartItems.length + '</td>';
+                row += '<td>' + (sale.customFields.commande ? 'Oui' : "Non") + '</td>';
+                row += '<td><a href="https://md.phppointofsale.com/index.php/sales/receipt/'+sale.saleId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>';
+                row += '</tr>';
+                table.find('tbody').append(row);
+            }
+        } else {
+            console.log("The rows cannot be updated because the customer isn't there anymore.");
         }
     },
     onMessage: function (event) {
