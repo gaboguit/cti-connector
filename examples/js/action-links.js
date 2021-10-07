@@ -121,10 +121,10 @@ Cti.Platform.prototype = {
             $('#factures-' + call.id).replaceWith('<td id="factures-'+call.id+'">error</td>');
         } else {
             me.calls[call.id].sales = sales;
-            $('#factures-' + call.id).replaceWithPush('<td id="factures-'+call.id+'"><a type="button" class="btn btn-secondary" id="sales-button-'+call.id+'"><i class="bi-cash-coin"></i></a></td>');
+            $('#factures-' + call.id).replaceWithPush('<td id="factures-'+call.id+'"><a type="button" class="btn btn-secondary sales-button" id="sales-button-'+call.id+'"><i class="bi-cash-coin"></i></a></td>');
             var popoverBtn = document.getElementById('sales-button-'+call.id);
             var popover = new bootstrap.Popover(popoverBtn, {
-                title: 'Ventes précédentes',
+                title: 'Ventes précédentes '+call.firstname+' '+call.lastname+'<button type="button" id="closePopover" class="btn-sm float-end" onclick="$(&quot;.sales-button&quot;).popover(&quot;hide&quot;);">&times;</button>',
                 placement: 'bottom',
                 boundary: 'window',
                 trigger: 'click hover',
@@ -299,6 +299,7 @@ $().ready(function () {
     });
     // Configure bootstrap's sanitizer
     var myDefaultAllowList = bootstrap.Tooltip.Default.allowList;
+    myDefaultAllowList.button = ['onclick'];
     myDefaultAllowList.table = [];
     myDefaultAllowList.thead = [];
     myDefaultAllowList.tbody = [];
@@ -308,7 +309,8 @@ $().ready(function () {
 });
 
 var salesTemplate = function(callId, sales) {
-    var template = $('<div class="row sales-popover-'+callId+'"> \
+    var template = $(
+    '<div class="row sales-popover-'+callId+'"> \
         <div class="tab-content"> \
             <div class="tab-pane active" role="tabpanel"> \
                 <table class="table table-striped" id="sales-table-'+callId+'"> \
