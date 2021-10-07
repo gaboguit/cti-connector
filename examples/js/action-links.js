@@ -1,4 +1,5 @@
 const { Toast } = bootstrap;
+const DEFAULT_NB_SALES = 5;
 var connector;
 var pos;
 
@@ -132,9 +133,12 @@ Cti.Platform.prototype = {
                 html: true,
                 container: 'body',
                 content: function() {
-                    var table = salesTemplate(call, sales);
+                    var table = me.salesTemplate(call);
                     return table;
                 }
+            });
+            popoverBtn.addEventListener('inserted.bs.popover', function() {
+                me.updateSalesTable(DEFAULT_NB_SALES, call.id);
             });
         }
     },
@@ -234,6 +238,59 @@ Cti.Platform.prototype = {
             }
         }
     },
+    salesTemplate: function(call) {
+        var me = this;
+        if (call.balance) {
+            var balance = '<span id="balance-'+call.id+'" class="bg-warning text-dark">Balance: '+call.balance+'$</span>';
+        } else {
+            var balance = '';
+        }
+        var template = $(
+        '<div class="row" id="sales-popover-'+call.id+'"> \
+            <div class="tab-content"> \
+                <div> \
+                    '+balance+' \
+                    <input class="float-end" type="number" min="1" max="15" step="1" value="5" name="nbVentes" onchange="Cti.Platform.prototype.updateSalesTable(this.value,'+call.id+')"> \
+                    <span class="mx-2 float-end">Nombre de ventes: </span> \
+                </div> \
+                <div class="tab-pane active" role="tabpanel"> \
+                    <table class="table table-striped" id="sales-table-'+call.id+'"> \
+                        <thead><tr> \
+                            <th>ID</th> \
+                            <th>Date</th> \
+                            <th>Sous-Total</th> \
+                            <th>Total</th> \
+                            <th>Nb. Articles</th> \
+                            <th>Commande</th> \
+                            <th>POS</th> \
+                        </tr></thead> \
+                        <tbody></tbody> \
+                    </table> \
+                </div> \
+            </div> \
+        </div>');
+        return template;
+    },
+    updateSalesTable: function(nbSales, callId) {
+        var me = this;
+        var call = me.calls[callId];
+        var table = $('#sales-table-'+callId);
+        table.find('tbody tr').empty();
+        for (var i = 0; i < nbSales && i < call.sales.length; i++) {
+            var index = call.sales.length - i - 1;
+            var sale = call.sales[index];
+            var row = '<tr>';
+            row += '<td>' + sale.saleId + '</td>';
+            row += '<td>' + sale.saleTime + '</td>';
+            row += '<td>' + sale.subtotal + '</td>';
+            row += '<td>' + sale.total + '</td>';
+            row += '<td>' + sale.cartItems.length + '</td>';
+            row += '<td>' + (sale.customFields.commande ? 'Oui' : "Non") + '</td>';
+            row += '<td><a href="https://md.phppointofsale.com/index.php/sales/receipt/'+sale.saleId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>';
+            row += '</tr>';
+            table.find('tbody').append(row);
+        }
+    },
     onMessage: function (event) {
         var me = this;
         Cti.log(event);
@@ -308,49 +365,6 @@ $().ready(function () {
     myDefaultAllowList.td = ['data-bs-option'];
     myDefaultAllowList.th = ['data-bs-option'];
 });
-
-var salesTemplate = function(call, sales) {
-    if (call.balance) {
-        var balance = '<span id="balance-'+call.id+'" class="bg-warning text-dark">Balance: '+call.balance+'$</span>';
-    } else {
-        var balance = '';
-    }
-    var template = $(
-    '<div class="row sales-popover-'+call.id+'"> \
-        <div class="tab-content"> \
-            '+balance+' \
-            <div class="tab-pane active" role="tabpanel"> \
-                <table class="table table-striped" id="sales-table-'+call.id+'"> \
-                    <thead><tr> \
-                        <th>ID</th> \
-                        <th>Date</th> \
-                        <th>Sous-Total</th> \
-                        <th>Total</th> \
-                        <th>Nb. Articles</th> \
-                        <th>Commande</th> \
-                        <th>POS</th> \
-                    </tr></thead> \
-                    <tbody></tbody> \
-                </table> \
-            </div> \
-        </div> \
-    </div>');
-    for (var i = 0; i < 5 && i < sales.length; i++) {
-        var index = sales.length - i - 1;
-        var sale = sales[index];
-        var row = '<tr>';
-        row += '<td>' + sale.saleId + '</td>';
-        row += '<td>' + sale.saleTime + '</td>';
-        row += '<td>' + sale.subtotal + '</td>';
-        row += '<td>' + sale.total + '</td>';
-        row += '<td>' + sale.cartItems.length + '</td>';
-        row += '<td>' + (sale.customFields.commande ? 'Oui' : "Non") + '</td>';
-        row += '<td><a href="https://md.phppointofsale.com/index.php/sales/receipt/'+sale.saleId+'" target="_blank" onclick="" class="btn btn-primary"><i class="bi-info-lg"></i></a></td>';
-        row += '</tr>';
-        template.find('#sales-table-'+call.id+' tr:last').after(row);
-    }
-    return template;
-};
 
 $.fn.replaceWithPush = function (a) {
   var $a = $(a);
