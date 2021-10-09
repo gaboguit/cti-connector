@@ -146,20 +146,23 @@ Cti.Platform.prototype = {
                 me.disableRowTimeout(call.id);
             });
             popoverBtn.addEventListener('hide.bs.popover', function() {
-                me.enableRowTimeout(call.id);
+                me.enableRowTimeout(call.id, true);
             });
         }
     },
-    enableRowTimeout: function(callId) {
+    enableRowTimeout: function(callId, unlock = false) {
         var me = this;
-        me.rowTimeouts[callId] = setTimeout(function() {
-            delete(me.calls[callId]);
-            $('#call-' + callId).remove();
-        }, 30000);
+        if (unlock || me.rowTimeouts[callId] != "LOCKED") {
+            me.rowTimeouts[callId] = setTimeout(function() {
+                delete(me.calls[callId]);
+                $('#call-' + callId).remove();
+            }, 30000);
+        }
     },
     disableRowTimeout: function(callId) {
         var me = this;
         clearTimeout(me.rowTimeouts[callId]);
+        me.rowTimeouts[callId] = "LOCKED";
     },
     submitCustomer: function(callId) {
         var me = this;
