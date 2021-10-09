@@ -89,6 +89,7 @@ Cti.Platform.prototype = {
             var parsedPhone = me.parsePhone(call.destination);
         }
         var bindedCallback = me.assignCustomer.bind(me);
+        console.log('CHECK 2');
         pos.getCustomer(parsedPhone, call, bindedCallback);
     },
     assignCustomer: function(call, customer) {
@@ -236,7 +237,9 @@ Cti.Platform.prototype = {
             var status = '<td id="status-' + callId + '">' + thisCall.status + '</td>';
             if ($('#call-' + callId).length) {
                 $('#status-' + callId).replaceWith(status);
+                console.log("CHECK 1");
                 if (!thisCall.posId && thisCall.posId != "ERROR") {
+                    thisCall.posId = "FETCHING";
                     me.customerFromCall(thisCall);
                 }
             } else {
