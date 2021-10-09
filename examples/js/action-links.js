@@ -34,6 +34,7 @@ Cti.Platform.prototype = {
     username: null,
     calls: {},
     loadedCustomers: {},
+    rowTimeouts: [],
     callEvents: [
         Cti.EVENT.INITIAL, Cti.EVENT.ACCEPTED, Cti.EVENT.RINGING, Cti.EVENT.CONNECTED, Cti.EVENT.ON_HOLD, Cti.EVENT.HANGUP, Cti.EVENT.CANCEL
     ],
@@ -126,7 +127,8 @@ Cti.Platform.prototype = {
             $('#factures-' + call.id).replaceWithPush('<td id="factures-'+call.id+'"><a type="button" class="btn btn-secondary sales-button" id="sales-button-'+call.id+'"><i class="bi-cash-coin"></i></a></td>');
             var popoverBtn = document.getElementById('sales-button-'+call.id);
             var popover = new bootstrap.Popover(popoverBtn, {
-                title: 'Ventes précédentes '+call.firstname+' '+call.lastname+'<button type="button" id="closePopover" class="btn-sm float-end" onclick="$(&quot;.sales-button&quot;).popover(&quot;hide&quot;);">&times;</button>',
+                title: 'Ventes précédentes '+call.firstname+' '+call.lastname+
+                    '<button type="button" id="closePopover" class="btn-sm float-end" onclick="$(&quot;.sales-button&quot;).popover(&quot;hide&quot;);">&times;</button>',
                 placement: 'bottom',
                 boundary: 'window',
                 trigger: 'click hover',
@@ -140,7 +142,24 @@ Cti.Platform.prototype = {
             popoverBtn.addEventListener('inserted.bs.popover', function() {
                 me.updateSalesTable(DEFAULT_NB_SALES, call.id);
             });
+            popoverBtn.addEventListener('show.bs.popover', function() {
+                me.disableRowTimeout(call.id);
+            });
+            popoverBtn.addEventListener('hide.bs.popover', function() {
+                me.enableRowTimeout(call.id);
+            });
         }
+    },
+    enableRowTimeout: function(callId) {
+        var me = this;
+        me.rowTimeouts[callId] = setTimeout(function() {
+            delete(me.calls[callId]);
+            $('#call-' + callId).remove();
+        }, 30000);
+    },
+    disableRowTimeout: function(callId) {
+        var me = this;
+        clearTimeout(me.rowTimeouts[callId]);
     },
     submitCustomer: function(callId) {
         var me = this;
@@ -190,10 +209,7 @@ Cti.Platform.prototype = {
                 me.calls[call.id].status = call.status;
                 me.refreshDisplay();
                 clearInterval(refreshTimer);
-                setTimeout(function() {
-                    delete(me.calls[call.id]);
-                    $('#call-' + call.id).remove();
-                }, 30000);
+                me.enableRowTimeout(call.id);
             }
         } else {
             if (!me.calls[call.id]) {
